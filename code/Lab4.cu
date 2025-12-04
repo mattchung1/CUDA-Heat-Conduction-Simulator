@@ -27,6 +27,15 @@ int numPoints = 256; // Default number of points along one side of the square
 int numIterations = 10000; // Default number of iterations
 
 
+// Macro for checking CUDA errors
+#define cudaCheckError() { \
+    cudaError_t e=cudaGetLastError(); \
+    if(e!=cudaSuccess) { \
+        printf("Cuda failure %s:%d: Error Code %d\n",__FILE__,__LINE__, e); \
+        exit(EXIT_FAILURE); \
+    } \
+}
+
 
 /*
 *********************************
@@ -50,6 +59,22 @@ __global__ void heat_calc(double *g_new, double *h_old, int gridSize)
 
 int main(int argc, char* argv[])
 {
+    // Added for GPU selection if there are multiple GPUs
+    int deviceCount;
+    cudaGetDeviceCount(&deviceCount);
+    printf("Found %d CUDA devices.\n", deviceCount);
+
+    for (int i = 0; i < deviceCount; i++) {
+        cudaDeviceProp prop;
+        cudaGetDeviceProperties(&prop, i);
+        printf("Device %d: %s\n", i, prop.name);
+    }
+
+
+    // FORCE GPU 0 (or try 1 if 0 fails)
+    cudaSetDevice(0); 
+    cudaCheckError();
+
     /*
     *********************************
     ARGUMENT HANDLING
@@ -162,6 +187,15 @@ int main(int argc, char* argv[])
     cudaMemcpy(d_g, g, sizeof(double) * arraySize, cudaMemcpyHostToDevice);
 
 
+    cudaMalloc((void**)&d_g, sizeof(double) * arraySize);
+    cudaMalloc((void**)&d_h, sizeof(double) * arraySize);
+    cudaCheckError(); // <--- ADD THIS
+
+    cudaMemcpy(d_h, h, sizeof(double) * arraySize, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_g, g, sizeof(double) * arraySize, cudaMemcpyHostToDevice);
+    cudaCheckError(); // <--- ADD THIS
+
+
     /*
     *********************************
     CUDA EVENT TIMING SETUP
@@ -188,16 +222,35 @@ int main(int argc, char* argv[])
     // Record the start time
     cudaEventRecord(start_event, 0);
 
+    // Open binary file for writing simulation data
+    std::ofstream binFile("sim_data.bin", std::ios::binary | std::ios::trunc);
+    if(!binFile.is_open()) { /* handle error */ }
+
     // Perform iterations
     for(int iter = 0; iter < numIterations; iter++)
     {
         heat_calc<<<NUM_BLOCKS, THREADS_PER_BLOCK>>>(d_g, d_h, gridSize);
 
+        cudaCheckError();
+
         // Swap pointers for subsequent iteration
         std::swap(d_g, d_h);
+
+        // Save every 100 steps
+        if (iter % 100 == 0) {
+            // Copy from GPU to Host temp array
+            cudaMemcpy(g, d_g, sizeof(double) * arraySize, cudaMemcpyDeviceToHost);
+            
+            // Write the RAW memory directly to the file
+            // No loops, no formatting, just a raw data dump
+            binFile.write((char*)g, sizeof(double) * arraySize);
+        }
     }
     cudaEventRecord(stop_event, 0);
     cudaEventSynchronize(stop_event);
+
+    // Close binary file
+    binFile.close();
 
     /*
     *********************************
