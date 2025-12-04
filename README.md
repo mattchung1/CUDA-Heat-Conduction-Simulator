@@ -2,8 +2,9 @@
 
 A high-performance parallel computing application that simulates steady-state heat distribution across a 2D plate. This project implements the **Finite Difference Method** (Jacobi Iteration) using **NVIDIA CUDA** to accelerate calculations on the GPU, achieving significant speedups over serial CPU implementations.
 
-Heat Simulation Demo
-https://youtu.be/QkSclliFg-I
+### 🎥 Simulation Demo
+[![Heat Simulation Demo](https://img.youtube.com/vi/QkSclliFg-I/0.jpg)](https://youtu.be/QkSclliFg-I)
+*Click the image above to watch the simulation on YouTube*
 
 ## Features
 * **GPU Acceleration:** Utilizes custom CUDA kernels to perform parallel Jacobi iterations on the GPU.
