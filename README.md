@@ -2,7 +2,7 @@
 
 A high-performance parallel computing application that simulates steady-state heat distribution across a 2D plate. This project implements the **Finite Difference Method** (Jacobi Iteration) using **NVIDIA CUDA** to accelerate calculations on the GPU, achieving significant speedups over serial CPU implementations.
 
-![Heat Simulation Demo]
+Heat Simulation Demo
 https://youtu.be/QkSclliFg-I
 
 ## Features
@@ -25,7 +25,7 @@ To run this simulation, you need the following hardware and software:
 
 1.  **Clone the Repository:**
     ```bash
-    git clone [https://github.com/yourusername/CUDA-Heat-Conduction-Simulator.git](https://github.com/yourusername/CUDA-Heat-Conduction-Simulator.git)
+    git clone https://github.com/mattchung1/CUDA-Heat-Conduction-Simulator.git
     cd CUDA-Heat-Conduction-Simulator/code
     ```
 
