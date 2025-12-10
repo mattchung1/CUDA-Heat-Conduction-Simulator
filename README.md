@@ -5,6 +5,7 @@ A high-performance parallel computing application that simulates steady-state he
 ### 🎥 Simulation Demo
 [![Heat Simulation Demo](https://img.youtube.com/vi/QkSclliFg-I/0.jpg)](https://youtu.be/QkSclliFg-I)
 
+> *Click the image above to watch the demonstration video.*
 
 ## Features
 * **GPU Acceleration:** Utilizes custom CUDA kernels to perform parallel Jacobi iterations on the GPU.
